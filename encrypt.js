@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 (function () {
     function xorEncryptDecrypt(input, key) {
         let output = '';
@@ -11,22 +9,29 @@ require('dotenv').config();
 
     function complexEncode(input) {
         return btoa(input.split('').map((c, i) => 
-            String.fromCharCode(c.charCodeAt(0) + (i % 7))
+            String.fromCharCode(c.charCodeAt(0) + (i % 5))
         ).join(''));
     }
 
     function complexDecode(input) {
         return atob(input).split('').map((c, i) => 
-            String.fromCharCode(c.charCodeAt(0) - (i % 7))
+            String.fromCharCode(c.charCodeAt(0) - (i % 5))
         ).join('');
     }
 
-    function obfuscateKey(envKey) {
-        return envKey.split(',').map(n => String.fromCharCode(parseInt(n) ^ 42)).join('');
+    function mutateKey(seed) {
+        let transformed = '';
+        for (let i = 0; i < seed.length; i++) {
+            transformed += String.fromCharCode((seed.charCodeAt(i) * 17 + 13) % 256);
+        }
+        return transformed;
     }
 
-    const key1 = obfuscateKey(process.env.KEY1);
-    const key2 = obfuscateKey(process.env.KEY2);
+    const key1_base = [99, 111, 109, 112, 108, 101, 120]; 
+    const key2_base = [115, 101, 99, 117, 114, 105, 116, 121]; 
+
+    const key1 = mutateKey(String.fromCharCode(...key1_base));
+    const key2 = mutateKey(String.fromCharCode(...key2_base));
 
     function encryptText(text) {
         let encrypted = xorEncryptDecrypt(text, key1);
@@ -41,10 +46,6 @@ require('dotenv').config();
         return decrypted;
     }
 
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { encryptText, decryptText };
-    } else {
-        window.encryptText = encryptText;
-        window.decryptText = decryptText;
-    }
+    window.encryptText = encryptText;
+    window.decryptText = decryptText;
 })();
