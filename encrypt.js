@@ -26,7 +26,6 @@
         return customEncode(encrypted);
     }
 
-    // Export function for external use
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = encryptText;
     } else {
